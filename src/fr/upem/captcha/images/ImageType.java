@@ -1,0 +1,67 @@
+package fr.upem.captcha.images;
+
+import java.util.List;
+import java.util.Random;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.net.URL;
+
+/**
+ * Classe abstraite implémentant les méthodes de l'interface Images
+ * @author CRUVEILLIER Marie - DONADIO Axel
+ * @version 1.0 
+ */
+abstract public class ImageType implements Images {
+	private List<URL> photos;
+	public ImageType() {
+		super();
+		this.photos = getPhotos();
+	}
+	/**
+	  * Récupère les images numérotées de 0 à 9 dans le dossier de la classe et retourne leur lien dans une liste
+	  * @param 
+	  * @return List<URL>
+	  */
+	public List<URL> getPhotos(){
+		List<URL> list = new ArrayList<URL>();
+		for(int i = 0; i < 10; i++) {
+			list.add(this.getClass().getResource(i + ".jpg"));
+		}
+		return list;
+	}
+	/**
+	  * Retourne une liste de n lien d'image au hasard parmi la liste des images de la classe
+	  * @param int
+	  * @return List<URL>
+	  */
+	public List<URL> getRandomPhotosURL(int number){
+		List<URL> list = new ArrayList<URL>(photos);
+		Collections.shuffle(list);
+		return list.subList(0, number);
+	}
+	/**
+	  * Retourne un lien d'image au hasard parmi la liste des images de la classe
+	  * @param 
+	  * @return URL
+	  */
+	public URL getRandomPhotoURL() {
+		Random r = new Random();
+		int n = r.nextInt(photos.size());
+		return photos.get(n);
+	}
+	/**
+	  * Vérifie si une image passée en paramètre est du type de la classe courante. Retourne true si oui, false sinon.
+	  * @param URL
+	  * @return boolean
+	  */
+	public boolean isPhotoCorrect(URL path) {
+		String packageName = this.getClass().getPackage().getName().replace(".", "/");
+		return path.toString().contains(packageName);
+	}
+	@Override
+	public String toString() {
+		return "photosListPath :" + photos;
+	}
+	
+}

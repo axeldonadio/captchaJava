@@ -1,6 +1,7 @@
 package fr.upem.captcha.images;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import java.util.ArrayList;
@@ -36,9 +37,10 @@ abstract public class ImageType implements Images {
 	  * @return List<URL>
 	  */
 	public List<URL> getRandomPhotosURL(int number){
+		int nb = Objects.requireNonNull(number, "nulber must not be null");
 		List<URL> list = new ArrayList<URL>(photos);
 		Collections.shuffle(list);
-		return list.subList(0, number);
+		return list.subList(0, nb);
 	}
 	/**
 	  * Retourne un lien d'image au hasard parmi la liste des images de la classe
@@ -56,8 +58,9 @@ abstract public class ImageType implements Images {
 	  * @return boolean
 	  */
 	public boolean isPhotoCorrect(URL path) {
+		URL newPath = Objects.requireNonNull(path, "path is must not be null");
 		String packageName = this.getClass().getPackage().getName().replace(".", "/");
-		return path.toString().contains(packageName);
+		return newPath.toString().contains(packageName);
 	}
 	@Override
 	public String toString() {

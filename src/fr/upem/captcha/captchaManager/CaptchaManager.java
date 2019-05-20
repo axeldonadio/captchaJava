@@ -3,6 +3,7 @@ package fr.upem.captcha.captchaManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.io.IOException;
 import java.net.URL;
@@ -277,7 +278,7 @@ public class CaptchaManager {
 	  * @return
 	  */
 	public void setSelected(List<URL> selectedImages) {
-		this.selected = selectedImages;
+		this.selected = Objects.requireNonNull(selectedImages, "selectedImages must not be  null ");
 	}
 	/**
 	  * Setter aléatoire de la réponse que doit trouver l'utilisateur parmis les classes à afficher. Retourne l'indice de cette réponse dans la liste des classes choisies

@@ -12,8 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -48,7 +47,7 @@ public class MainUi {
 	  * @return GridLayout
 	  */
 	private static GridLayout createLayout(){
-		return new GridLayout(4,3);
+		return new GridLayout(5,3);
 	}
 	
 	/**
@@ -56,7 +55,9 @@ public class MainUi {
 	  * @param JTextArea, JFrame
 	  * @return JButton
 	  */
-	private static JButton createOkButton(JTextArea infosUser, JFrame frame){
+	private static JButton createOkButton(JTextArea iUser, JFrame f){
+		JTextArea infosUser = Objects.requireNonNull(iUser, "infoUser is must not be null");
+		JFrame frame = Objects.requireNonNull(f, "f is must not be null");
 		return new JButton(new AbstractAction("Vérifier") { //ajouter l'action du bouton
 			
 			@Override
@@ -89,9 +90,8 @@ public class MainUi {
 	  * @param URL
 	  * @return JLabel
 	  */
-	private static JLabel createLabelImage(URL url) throws IOException{
-		
-		
+	private static JLabel createLabelImage(URL u) throws IOException{
+		URL url = Objects.requireNonNull(u, "u is must not be null");
 		BufferedImage img = ImageIO.read(url); //lire l'image
 		Image sImage = img.getScaledInstance(1024/3,768/4, Image.SCALE_SMOOTH); //redimentionner l'image
 		
@@ -151,7 +151,8 @@ public class MainUi {
 	  * @param JFrame
 	  * @return 
 	  */
-	private static void restart(JFrame frame) {
+	private static void restart(JFrame f) {
+		JFrame frame = Objects.requireNonNull(f, "f is must not be null");
 		selectedImages.clear();
 		frame.setVisible(false);
 		frame = new JFrame("Captcha");
@@ -163,7 +164,8 @@ public class MainUi {
 	  * @param 
 	  * @return Frame
 	  */
-	private static void drawFrame(JFrame frame) {	
+	private static void drawFrame(JFrame f) {
+		JFrame frame = Objects.requireNonNull(f, "f is must not be null");
 		GridLayout layout = createLayout();  // Création d'un layout de type Grille avec 4 lignes et 3 colonnes
 		
 		frame.setLayout(layout);  // affection du layout dans la fenêtre.
@@ -174,14 +176,9 @@ public class MainUi {
 		
 		captchaManager.captchaManagerInitialize();
 		
-		for(URL url : captchaManager.getImagesList()) {
-			try {
-				frame.add(createLabelImage(url));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
+		JTextArea whiteSpaceHL = new JTextArea("");
+		JTextArea whiteSpaceHR = new JTextArea("");
+		JTextArea whiteSpaceDL = new JTextArea("");
 		JTextArea infosUser = new JTextArea("Sélectionnez les images de " + 
 				Arrays.toString(
 						captchaManager.getCorrectAnswerName().
@@ -191,10 +188,19 @@ public class MainUi {
 								.replace("]", "")  
 								.trim()
 							);
-		JButton okButton = createOkButton(infosUser, frame);
+		frame.add(whiteSpaceHL);
 		frame.add(infosUser);
+		frame.add(whiteSpaceHR);
 		
-		
+		for(URL url : captchaManager.getImagesList()) {
+			try {
+				frame.add(createLabelImage(url));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		JButton okButton = createOkButton(infosUser, frame);
+		frame.add(whiteSpaceDL);
 		frame.add(okButton);
 		
 		frame.setVisible(true);

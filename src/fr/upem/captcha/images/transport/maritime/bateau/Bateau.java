@@ -1,6 +1,6 @@
 package fr.upem.captcha.images.transport.maritime.bateau;
 
-import fr.upem.captcha.images.transport.maritime.TransportMaritime;
+import fr.upem.captcha.images.transport.maritime.Maritime;
 
 /**
  * Classe Bateau
@@ -8,7 +8,7 @@ import fr.upem.captcha.images.transport.maritime.TransportMaritime;
  * @version 1.0 
  */
 
-public class Bateau extends TransportMaritime{
+public class Bateau extends Maritime{
 	public Bateau() {
 		super();
 	}

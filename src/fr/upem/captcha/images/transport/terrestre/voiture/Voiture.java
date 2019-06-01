@@ -1,6 +1,6 @@
 package fr.upem.captcha.images.transport.terrestre.voiture;
 
-import fr.upem.captcha.images.transport.terrestre.TransportTerrestre;
+import fr.upem.captcha.images.transport.terrestre.Terrestre;
 
 /**
  * Classe Voiture
@@ -9,7 +9,7 @@ import fr.upem.captcha.images.transport.terrestre.TransportTerrestre;
  */
 
 
-public class Voiture extends TransportTerrestre{
+public class Voiture extends Terrestre{
 	public Voiture() {
 		super();
 	}

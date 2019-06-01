@@ -1,6 +1,6 @@
 package fr.upem.captcha.images.transport.maritime.kayak;
 
-import fr.upem.captcha.images.transport.maritime.TransportMaritime;
+import fr.upem.captcha.images.transport.maritime.Maritime;
 
 /**
  * Classe Kayak
@@ -8,7 +8,7 @@ import fr.upem.captcha.images.transport.maritime.TransportMaritime;
  * @version 1.0 
  */
 
-public class Kayak extends TransportMaritime{
+public class Kayak extends Maritime{
 	public Kayak() {
 		super();
 	}

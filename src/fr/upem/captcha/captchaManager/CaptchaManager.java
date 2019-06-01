@@ -1,54 +1,21 @@
 package fr.upem.captcha.captchaManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import fr.upem.captcha.images.ImageType;
-import fr.upem.captcha.images.animal.Animal;
-import fr.upem.captcha.images.panneau.Panneau;
-import fr.upem.captcha.images.transport.Transport;
-import fr.upem.captcha.images.vetement.Vetement;
-import fr.upem.captcha.images.animal.mammifere.Mammifere;
-import fr.upem.captcha.images.animal.mammifere.marin.MammifereMarin;
-import fr.upem.captcha.images.animal.mammifere.terrestre.MammifereTerrestre;
-import fr.upem.captcha.images.animal.oiseau.Oiseau;
-import fr.upem.captcha.images.animal.oiseau.jaune.OiseauJaune;
-import fr.upem.captcha.images.animal.oiseau.rouge.OiseauRouge;
-import fr.upem.captcha.images.animal.oiseau.vert.OiseauVert;
-import fr.upem.captcha.images.animal.poisson.Poisson;
-import fr.upem.captcha.images.animal.poisson.poissonRouge.PoissonRouge;
-import fr.upem.captcha.images.animal.poisson.requin.Requin;
-import fr.upem.captcha.images.panneau.publicitaire.PanneauPublicitaire;
-import fr.upem.captcha.images.panneau.publicitaire.autouroute.PanneauAutoroute;
-import fr.upem.captcha.images.panneau.publicitaire.metro.PanneauMetro;
-import fr.upem.captcha.images.panneau.publicitaire.ville.PanneauVille;
-import fr.upem.captcha.images.panneau.routier.PanneauRoutier;
-import fr.upem.captcha.images.panneau.routier.danger.PanneauDanger;
-import fr.upem.captcha.images.panneau.routier.interdiction.PanneauInterdiction;
-import fr.upem.captcha.images.panneau.routier.limitation.PanneauLimitation;
-import fr.upem.captcha.images.transport.maritime.TransportMaritime;
-import fr.upem.captcha.images.transport.maritime.bateau.Bateau;
-import fr.upem.captcha.images.transport.maritime.kayak.Kayak;
-import fr.upem.captcha.images.transport.maritime.sousMarin.SousMarin;
-import fr.upem.captcha.images.transport.terrestre.TransportTerrestre;
-import fr.upem.captcha.images.transport.terrestre.bus.Bus;
-import fr.upem.captcha.images.transport.terrestre.moto.Moto;
-import fr.upem.captcha.images.transport.terrestre.velo.Velo;
-import fr.upem.captcha.images.transport.terrestre.voiture.Voiture;
-import fr.upem.captcha.images.vetement.chaussure.Chaussure;
-import fr.upem.captcha.images.vetement.chaussure.basket.Basket;
-import fr.upem.captcha.images.vetement.chaussure.botte.Botte;
-import fr.upem.captcha.images.vetement.chaussure.talon.Talon;
-import fr.upem.captcha.images.vetement.haut.Haut;
-import fr.upem.captcha.images.vetement.haut.debardeur.Debardeur;
-import fr.upem.captcha.images.vetement.haut.manteau.Manteau;
-import fr.upem.captcha.images.vetement.haut.pull.Pull;
-import fr.upem.captcha.images.vetement.haut.teeShirt.TeeShirt;
+
+import fr.upem.captcha.images.Images;
 
 /**
  * CaptchaManager
@@ -58,8 +25,9 @@ import fr.upem.captcha.images.vetement.haut.teeShirt.TeeShirt;
 public class CaptchaManager {
 	private List<URL> imagesList;
 	private List<URL> selected;
-	private List<ImageType> listClasses;
-	ImageType correctAnswer;
+	private List<Images> listClasses;
+	private ArrayList<String> categorieNames;
+	private static Images correctAnswer;
 	private final static int NB_CLASSES = 3;
 	private final static int NB_IMAGES = 9;
 	private final static int MAX_DIFFICULTY_LEVEL = 3;
@@ -68,7 +36,9 @@ public class CaptchaManager {
 	
 	public CaptchaManager() {
 		super();
-		this.listClasses =  new ArrayList<ImageType>();
+		this.categorieNames = new ArrayList<String>();
+		this.categorieNames.add("images");
+		this.listClasses =  new ArrayList<Images>();
 		this.imagesList =  new ArrayList<URL>();
 		this.selected =  new ArrayList<URL>();
 		difficultyLevel = 0; 
@@ -85,100 +55,97 @@ public class CaptchaManager {
 		setListClasses();
 		setImagesList();
 	}
+	
+	private static String getCurrentPath(ArrayList<String> categorieNames) {
+		//StringBuilder fullPath = new StringBuilder("src/fr/upem/captcha");	// Chemin pour exécuter à partir d'Eclipse
+		StringBuilder fullPath = new StringBuilder(System.getProperty("user.dir") + "/captcha2/src/fr/upem/captcha");	// Chemin pour exécuter en ligne de commandes depuis le dossier bin
+		for(String categorie: categorieNames) {
+			fullPath.append("/").append(categorie);
+		}
+		return fullPath.toString();
+}
+	
+	private static ArrayList<String> getClassPath(ArrayList<String> categorieNames, List<String> categories) {
+		StringBuilder fullPath = new StringBuilder("fr.upem.captcha");
+		for(String categorie: categorieNames) {
+			fullPath.append(".").append(categorie);
+		}
+		ArrayList<String> classPath = new ArrayList<String>();
+		for(String categorie: categories) {
+			String className = categorie.substring(0, 1).toUpperCase() + categorie.substring(1);
+			String fullName = fullPath+"."+categorie+"."+className;
+			classPath.add(fullName);
+		}
+		return classPath;
+}
+	
+	public static ArrayList<Images> getCategories(ArrayList<String> categorieNames) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+		ArrayList<Class<?>> classes = new ArrayList<Class<?>>(); 		// une liste de toutes nos classes
+		if(difficultyLevel > 1)
+			categorieNames.add(correctAnswer.getClass().getSimpleName().toLowerCase());
+		// On récupére le dossier dans lequel on se trouve actuellement
+		String currentPath = getCurrentPath(categorieNames);
+		Path currentRelativePath = Paths.get(currentPath);
+		// On récupére les sous dossiers (c'est à dire les categories)
+		List<String> directories = null;
+		try {
+			directories = Files.walk(currentRelativePath, 1)
+			        .map(Path::getFileName)
+			        .map(Path::toString)
+			        .filter(n -> !n.contains("."))
+			        .collect(Collectors.toList());
+			directories.remove(0);	// On enléve le 0 car c'est le nom du dossier courant	
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// On récupére le nom des classes trouvées et on les rajoute à la liste
+		ArrayList<String> classPath = getClassPath(categorieNames, directories);
+		for (String s : classPath) {
+			classes.add(Class.forName(s));
+		}
+		
+		// On instancie chaque classe en objet de type Images qu'on rajoute dans notre liste
+		ArrayList<Images> categories = new ArrayList<Images>();
+		for (Class clazz : classes) {
+			categories.add(instantiateImages(clazz));
+		}
+		
+		
+		
+		return categories;
+}
+	public static Images instantiateImages(Class<?> category) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+		Class<?> cls = Class.forName(category.getTypeName());	// On récupére le type de la classe
+		Object clsInstance = null;
+		try {
+			clsInstance = cls.getDeclaredConstructor().newInstance();
+		} catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	// On instancie un objet du type de la classe
+		return (Images)clsInstance;	// On le cast en Images pour pouvoir utiliser les méthodes de l'interface
+}
 	/**
 	  * Initialise la liste des classes qui seront affichées à l'écran
 	  * @param 
 	  * @return
 	  */
 	public void setListClasses() {
-		ArrayList<ImageType> completeListClasses = new ArrayList<ImageType>(listClasses);
-		switch(difficultyLevel) {
-			case 1:
-				completeListClasses.add(new Animal());
-				completeListClasses.add(new Vetement());
-				completeListClasses.add(new Transport());
-				completeListClasses.add(new Panneau());
-			break;
-			case 2:
-					if(correctAnswer.getClass().getSimpleName().contentEquals("Animal")) {
-						completeListClasses.add(new Mammifere());
-						completeListClasses.add(new Oiseau());
-						completeListClasses.add(new Poisson());
-					}
-					if(correctAnswer.getClass().getSimpleName().contentEquals("Panneau")) {
-						completeListClasses.add(new PanneauPublicitaire());
-						completeListClasses.add(new PanneauRoutier());
-					}
-					if(correctAnswer.getClass().getSimpleName().contentEquals("Transport")) {
-						completeListClasses.add(new TransportMaritime());
-						completeListClasses.add(new TransportTerrestre());					
-					}
-					if(correctAnswer.getClass().getSimpleName().contentEquals("Vetement")) {
-						completeListClasses.add(new Chaussure());
-						completeListClasses.add(new Haut());
-					}	
-			break;
-			case 3:
-				if(correctAnswer.getClass().getSimpleName().contentEquals("Mammifere")) {
-					completeListClasses.add(new MammifereTerrestre());
-					completeListClasses.add(new MammifereMarin());
-				}
-				if(correctAnswer.getClass().getSimpleName().contentEquals("Oiseau")) {
-					completeListClasses.add(new OiseauJaune());
-					completeListClasses.add(new OiseauRouge());
-					completeListClasses.add(new OiseauVert());
-				}
-				if(correctAnswer.getClass().getSimpleName().contentEquals("Poisson")) {
-					completeListClasses.add(new PoissonRouge());
-					completeListClasses.add(new Requin());
-				}
-				if(correctAnswer.getClass().getSimpleName().contentEquals("PanneauPublicitaire")) {
-					completeListClasses.add(new PanneauAutoroute());
-					completeListClasses.add(new PanneauMetro());
-					completeListClasses.add(new PanneauVille());
-				}
-				if(correctAnswer.getClass().getSimpleName().contentEquals("PanneauRoutier")) {
-					completeListClasses.add(new PanneauDanger());
-					completeListClasses.add(new PanneauInterdiction());
-					completeListClasses.add(new PanneauLimitation());
-				}
-				if(correctAnswer.getClass().getSimpleName().contentEquals("TransportMaritime")) {
-					completeListClasses.add(new Bateau());
-					completeListClasses.add(new Kayak());
-					completeListClasses.add(new SousMarin());
-				}
-				if(correctAnswer.getClass().getSimpleName().contentEquals("TransportTerrestre")) {
-					completeListClasses.add(new Bus());
-					completeListClasses.add(new Velo());
-					completeListClasses.add(new Moto());
-					completeListClasses.add(new Voiture());
-				}
-				if(correctAnswer.getClass().getSimpleName().contentEquals("Chaussure")) {
-					completeListClasses.add(new Talon());
-					completeListClasses.add(new Basket());
-					completeListClasses.add(new Botte());
-				}
-				if(correctAnswer.getClass().getSimpleName().contentEquals("Haut")) {
-					completeListClasses.add(new TeeShirt());
-					completeListClasses.add(new Pull());
-					completeListClasses.add(new Manteau());
-					completeListClasses.add(new Debardeur());
-				}
-			break;
-			default:
-				completeListClasses.add(new Animal());
-				completeListClasses.add(new Vetement());
-				completeListClasses.add(new Transport());
-				completeListClasses.add(new Panneau());
-			break;
-			
-		}
-		Collections.shuffle(completeListClasses);
+		ArrayList<Images> categories = null;
 		try {
-			this.listClasses = completeListClasses.subList(0, NB_CLASSES);
+			categories = getCategories(categorieNames);
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		Collections.shuffle(categories);
+		try {
+			this.listClasses = categories.subList(0, NB_CLASSES);
 		}
 		catch(IndexOutOfBoundsException e) {
-			this.listClasses = completeListClasses;
+			this.listClasses = categories;
 		}
 		
 	}
@@ -229,7 +196,7 @@ public class CaptchaManager {
 	  * @param 
 	  * @return List<ImageType>
 	  */
-	public List<ImageType> getListClasses(){
+	public List<Images> getListClasses(){
 		return this.listClasses;
 	}
 	/**
@@ -238,7 +205,8 @@ public class CaptchaManager {
 	  * @return String
 	  */
 	public String getCorrectAnswerName() {
-		return this.correctAnswer.getClass().getSimpleName();
+		return Arrays.asList(this.categorieNames.toArray()).subList(1, this.categorieNames.toArray().length) + " " + correctAnswer.getClass().getSimpleName().toLowerCase();
+		
 	}
 	/**
 	  * Getter des images à afficher
@@ -288,7 +256,7 @@ public class CaptchaManager {
 	public int setCorrectAnswer() {
 		Random r = new Random();
 		int n = r.nextInt(this.listClasses.size());
-		this.correctAnswer = this.listClasses.get(n);
+		correctAnswer = this.listClasses.get(n);
 		return n;
 	}
 	

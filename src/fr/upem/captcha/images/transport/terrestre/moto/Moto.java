@@ -1,6 +1,6 @@
 package fr.upem.captcha.images.transport.terrestre.moto;
 
-import fr.upem.captcha.images.transport.terrestre.TransportTerrestre;
+import fr.upem.captcha.images.transport.terrestre.Terrestre;
 
 /**
  * Classe Moto
@@ -9,7 +9,7 @@ import fr.upem.captcha.images.transport.terrestre.TransportTerrestre;
  */
 
 
-public class Moto extends TransportTerrestre{
+public class Moto extends Terrestre{
 	public Moto() {
 		super();
 	}

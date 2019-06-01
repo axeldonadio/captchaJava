@@ -3,10 +3,11 @@ package fr.upem.captcha.images;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-
 import java.util.ArrayList;
 import java.util.Collections;
+import java.io.File;
 import java.net.URL;
+
 
 /**
  * Classe abstraite implémentant les méthodes de l'interface Images
@@ -25,11 +26,21 @@ abstract public class ImageType implements Images {
 	  * @return List<URL>
 	  */
 	public List<URL> getPhotos(){
-		List<URL> list = new ArrayList<URL>();
+		/*List<URL> list = new ArrayList<URL>();
 		for(int i = 0; i < 10; i++) {
 			list.add(this.getClass().getResource(i + ".jpg"));
 		}
-		return list;
+		return list;*/
+		ArrayList<URL> photos =  new ArrayList<URL>();
+		File folder = new File("./src/"+this.getClass().getPackageName().toString().replace(".", "/"));
+		
+		String[] files = folder.list();
+		for(String path : files){
+			if (path.endsWith("jpg")==true) {
+				photos.add(this.getClass().getResource(path));
+			}	
+		}
+		return photos;
 	}
 	/**
 	  * Retourne une liste de n lien d'image au hasard parmi la liste des images de la classe

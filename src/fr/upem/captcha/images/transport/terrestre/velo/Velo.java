@@ -1,6 +1,6 @@
 package fr.upem.captcha.images.transport.terrestre.velo;
 
-import fr.upem.captcha.images.transport.terrestre.TransportTerrestre;
+import fr.upem.captcha.images.transport.terrestre.Terrestre;
 
 /**
  * Classe Velo
@@ -9,7 +9,7 @@ import fr.upem.captcha.images.transport.terrestre.TransportTerrestre;
  */
 
 
-public class Velo extends TransportTerrestre{
+public class Velo extends Terrestre{
 	public Velo() {
 		super();
 	}

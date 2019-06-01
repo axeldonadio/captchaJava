@@ -1,6 +1,6 @@
 package fr.upem.captcha.images.transport.maritime.sousMarin;
 
-import fr.upem.captcha.images.transport.maritime.TransportMaritime;
+import fr.upem.captcha.images.transport.maritime.Maritime;
 
 /**
  * Classe SousMarin
@@ -8,7 +8,7 @@ import fr.upem.captcha.images.transport.maritime.TransportMaritime;
  * @version 1.0 
  */
 
-public class SousMarin extends TransportMaritime{
+public class SousMarin extends Maritime{
 	public SousMarin() {
 		super();
 	}

@@ -60,6 +60,11 @@ public class MainUi {
 		JFrame frame = Objects.requireNonNull(f, "f is must not be null");
 		return new JButton(new AbstractAction("Vérifier") { //ajouter l'action du bouton
 			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				EventQueue.invokeLater(new Runnable() { // faire des choses dans l'interface donc appeler cela dans la queue des évènements
@@ -179,7 +184,7 @@ public class MainUi {
 		JTextArea whiteSpaceHL = new JTextArea("");
 		JTextArea whiteSpaceHR = new JTextArea("");
 		JTextArea whiteSpaceDL = new JTextArea("");
-		JTextArea infosUser = new JTextArea("Sélectionnez les images de " + 
+		JTextArea infosUser = new JTextArea("Sélectionnez les images qui correspondent au(x) mot(s) clé(s) \nsuivant(s) : " + 
 				Arrays.toString(
 						captchaManager.getCorrectAnswerName().
 							split("(?=\\p{Upper})"))

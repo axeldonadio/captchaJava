@@ -26,11 +26,14 @@ abstract public class ImageType implements Images {
 	  * @return List<URL>
 	  */
 	public List<URL> getPhotos(){
+		// Ancienne version non automatisée (celle sur le .jar conforméméent aux explications du dossier)
 		/*List<URL> list = new ArrayList<URL>();
 		for(int i = 0; i < 10; i++) {
 			list.add(this.getClass().getResource(i + ".jpg"));
 		}
 		return list;*/
+		
+		// Nouvelle version
 		ArrayList<URL> photos =  new ArrayList<URL>();
 		File folder = new File("./src/"+this.getClass().getPackageName().toString().replace(".", "/"));
 		String[] files = folder.list();

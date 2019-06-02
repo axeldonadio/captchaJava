@@ -1,6 +1,5 @@
 package fr.upem.captcha.captchaManager;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -56,8 +55,13 @@ public class CaptchaManager {
 		setImagesList();
 	}
 	
+	/**
+	  * Permet d'obtenir le chemin du dossier en fonction de l'avancement dans la profondeur voulue
+	  * @param ArrayList<String>
+	  * @return String
+	  */
 	private static String getCurrentPath(ArrayList<String> categorieNames) {
-		StringBuilder fullPath = new StringBuilder("src/fr/upem/captcha");	// Chemin pour exécuter à partir d'Eclipse
+		StringBuilder fullPath = new StringBuilder("src/fr/upem/captcha");	
 		
 		ArrayList<URL> chemins =  new ArrayList<URL>();
 		chemins.add(CaptchaManager.class.getClassLoader().getResource("fr/upem/captcha"));
@@ -68,8 +72,12 @@ public class CaptchaManager {
 		}
 		return fullPath.toString();
 
-}
-	
+	}
+	/**
+	  * Permet d'obtenir le chemin du package de la classe en fonction de l'avancement dans la profondeur voulue
+	  * @param ArrayList<String>
+	  * @return String
+	  */
 	private static ArrayList<String> getClassPath(ArrayList<String> categorieNames, List<String> categories) {
 		StringBuilder fullPath = new StringBuilder("fr.upem.captcha");
 		for(String categorie: categorieNames) {
@@ -82,16 +90,20 @@ public class CaptchaManager {
 			classPath.add(fullName);
 		}
 		return classPath;
-}
-	
+	}
+	/**
+	  * Permet d'obtenir les catégories qui correspondent au bon niveau de profondeur (difficulté actuelle)
+	  * @param ArrayList<String>
+	  * @return ArrayList<Images>
+	  */
 	public static ArrayList<Images> getCategories(ArrayList<String> categorieNames) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		ArrayList<Class<?>> classes = new ArrayList<Class<?>>(); 		// une liste de toutes nos classes
+		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
+		
 		if(difficultyLevel > 1)
 			categorieNames.add(correctAnswer.getClass().getSimpleName().toLowerCase());
-		// On récupére le dossier dans lequel on se trouve actuellement
+
 		String currentPath = getCurrentPath(categorieNames);
 		Path currentRelativePath = Paths.get(currentPath);
-		// On récupére les sous dossiers (c'est à dire les categories)
 		List<String> directories = null;
 		try {
 			directories = Files.walk(currentRelativePath, 1)
@@ -99,38 +111,39 @@ public class CaptchaManager {
 			        .map(Path::toString)
 			        .filter(n -> !n.contains("."))
 			        .collect(Collectors.toList());
-			directories.remove(0);	// On enléve le 0 car c'est le nom du dossier courant	
+			directories.remove(0);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		// On récupére le nom des classes trouvées et on les rajoute à la liste
 		ArrayList<String> classPath = getClassPath(categorieNames, directories);
 		for (String s : classPath) {
 			classes.add(Class.forName(s));
 		}
 		
-		// On instancie chaque classe en objet de type Images qu'on rajoute dans notre liste
 		ArrayList<Images> categories = new ArrayList<Images>();
 		for (Class clazz : classes) {
 			categories.add(instantiateImages(clazz));
 		}
 		
-		
-		
 		return categories;
-}
+	}
+	
+	/**
+	  * Retourne l'instanciation dynamique d'une classe donnée en paramètre
+	  * @param Class<?>
+	  * @return Images
+	  */
 	public static Images instantiateImages(Class<?> category) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		Class<?> cls = Class.forName(category.getTypeName());	// On récupére le type de la classe
+		Class<?> cls = Class.forName(category.getTypeName());	
 		Object clsInstance = null;
 		try {
 			clsInstance = cls.getDeclaredConstructor().newInstance();
 		} catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	// On instancie un objet du type de la classe
-		return (Images)clsInstance;	// On le cast en Images pour pouvoir utiliser les méthodes de l'interface
+		}	
+		return (Images)clsInstance;	
 }
 	/**
 	  * Initialise la liste des classes qui seront affichées à l'écran

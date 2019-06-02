@@ -1,5 +1,12 @@
 package fr.upem.captcha.captchaManager;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,13 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 
 import fr.upem.captcha.images.Images;
 
@@ -57,12 +57,17 @@ public class CaptchaManager {
 	}
 	
 	private static String getCurrentPath(ArrayList<String> categorieNames) {
-		//StringBuilder fullPath = new StringBuilder("src/fr/upem/captcha");	// Chemin pour exécuter à partir d'Eclipse
-		StringBuilder fullPath = new StringBuilder(System.getProperty("user.dir") + "/captcha2/src/fr/upem/captcha");	// Chemin pour exécuter en ligne de commandes depuis le dossier bin
+		StringBuilder fullPath = new StringBuilder("src/fr/upem/captcha");	// Chemin pour exécuter à partir d'Eclipse
+		
+		ArrayList<URL> chemins =  new ArrayList<URL>();
+		chemins.add(CaptchaManager.class.getClassLoader().getResource("fr/upem/captcha"));
+		//StringBuilder fullPath = new StringBuilder(chemins.get(0).toString());		//Chemin sensé fonctionner à partir du .jar
+		
 		for(String categorie: categorieNames) {
 			fullPath.append("/").append(categorie);
 		}
 		return fullPath.toString();
+
 }
 	
 	private static ArrayList<String> getClassPath(ArrayList<String> categorieNames, List<String> categories) {

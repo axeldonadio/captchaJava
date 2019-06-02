@@ -33,7 +33,6 @@ abstract public class ImageType implements Images {
 		return list;*/
 		ArrayList<URL> photos =  new ArrayList<URL>();
 		File folder = new File("./src/"+this.getClass().getPackageName().toString().replace(".", "/"));
-		
 		String[] files = folder.list();
 		for(String path : files){
 			if (path.endsWith("jpg")==true) {
